@@ -80,21 +80,23 @@ Core components:
 ```
 fm-index-engine/
 │
-├── src/
-│ ├── dc3.cpp / dc3.py
-│ ├── suffix_array.cpp / suffix_array.py
-│ ├── bwt.cpp / bwt.py
-│ ├── fm_index.cpp / fm_index.py
-│
-├── include/
-│ └── headers (if C++)
+├── fm_index_engine/
+│   ├── __init__.py
+│   ├── dc3.py
+│   ├── suffix_array.py
+│   ├── bwt.py
+│   ├── fm_index.py
 │
 ├── tests/
-│ └── test_cases.*
+│   ├── test_dc3.py
+│   ├── test_bwt.py
+│   ├── test_fm_index.py
 │
 ├── examples/
-│ └── demo_usage.*
+│   └── demo_usage.py
 │
+├── requirements.txt
+├── pyproject.toml   # (modern Python packaging)
 └── README.md
 ```
 

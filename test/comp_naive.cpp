@@ -3,6 +3,47 @@
 using namespace std;
 
 
+vector<int> build_sa_nlogn(vector<int> &text) {
+    int n = text.size();
+
+    vector<int> sa(n), rank(n), tmp(n);
+
+    // Initial ranking based on values
+    for (int i = 0; i < n; i++) {
+        sa[i] = i;
+        rank[i] = text[i];
+    }
+
+    for (int k = 1; k < n; k <<= 1) {
+        // Custom comparator
+        auto cmp = [&](int i, int j) {
+            if (rank[i] != rank[j])
+                return rank[i] < rank[j];
+
+            int ri = (i + k < n) ? rank[i + k] : -1;
+            int rj = (j + k < n) ? rank[j + k] : -1;
+            return ri < rj;
+        };
+
+        sort(sa.begin(), sa.end(), cmp);
+
+        // Recompute temporary ranks
+        tmp[sa[0]] = 0;
+        for (int i = 1; i < n; i++) {
+            tmp[sa[i]] = tmp[sa[i - 1]] + (cmp(sa[i - 1], sa[i]) ? 1 : 0);
+        }
+
+        // Copy back
+        rank = tmp;
+
+        // Optimization: stop early if all ranks are unique
+        if (rank[sa[n - 1]] == n - 1)
+            break;
+    }
+
+    return sa;
+}
+
 std::vector<int> build_suffix_array_naive(const std::vector<int> &s) {
     int n = s.size();
 
@@ -127,7 +168,7 @@ std::vector<int> merge_group(std::vector<int> &l_0, std::vector<int> &l_1_2, std
     int n0 = l_0.size(), n1 = l_1_2.size();
 
     std::vector<int> result;
-    result.reserve(n0 + n1);
+    result.reserve(n0 + n1 - 1);
 
     while (i0 < n0 && i1 < n1) {
         int pos0 = l_0[i0];
@@ -286,51 +327,34 @@ std::vector<int> generate_1_to_n(int n) {
 
 int main() {
     
-    vector<int> str_length = {10000000};
-    vector<int> alphabet_length = {4, 8, 16, 32, 64, 128, 256};
-    int runs = 2;
+    int str_length = 10000;
+    int alphabet_size = 8;
+    int runs = 100;
 
-    ofstream("./log/latency_dc3.log", ios::trunc).close();
+    bool to_break = false;
 
-    ofstream log_file("./log/latency_dc3.log");
+    for (int i = 0; i < runs; ++i) {
+        vector<int> alph_vec = generate_1_to_n(alphabet_size);
 
-    log_file << "str_len,alph,run,latency_ms\n";
+        vector<int> text = generate_random_string(alph_vec, str_length);
 
-    for (int str_len : str_length) {
-        for (int alph : alphabet_length) {
 
-            
-            for (int i = 0; i < runs; ++i) {
-                // generate alphabet once (good)
-                vector<int> alph_vec = generate_1_to_n(alph);
+        auto sa_naive = build_suffix_array_naive(text);
+        auto sa_nlogn = build_sa_nlogn(text);
+        auto sa_dc3 = build_suffix_array(text);
 
-                // generate text OUTSIDE timing of SA
-                vector<int> text = generate_random_string(alph_vec, str_len);
 
-                auto start = chrono::high_resolution_clock::now();
-
-                auto sa = build_suffix_array(text);
-                // auto sa = build_sa_nlogn(text);
-
-                auto end = chrono::high_resolution_clock::now();
-
-                double latency = chrono::duration<double, milli>(end - start).count();
-
-                // log result
-                log_file << str_len << ","
-                         << alph << ","
-                         << i << ","
-                         << latency << "\n";
-
-                cout     << str_len << ","
-                         << alph << ","
-                         << i << ","
-                         << latency << "\n";
-            }
+        if(sa_dc3 != sa_naive){
+            cout<<"Not match! ";
+            to_break = true;
         }
-    }
+        if(sa_nlogn != sa_naive){
+            cout<<"Not match!";
+            to_break = true;
+        }
 
-    log_file.close();
+        if(to_break = true)break;
+    }
 
     return 0;
 }

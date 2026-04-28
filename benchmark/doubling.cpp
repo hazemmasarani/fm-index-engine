@@ -71,9 +71,9 @@ int main() {
     
     vector<int> str_length = {1000, 10000, 100000, 1000000, 10000000};
     vector<int> alphabet_length = {4, 8, 16, 32, 64, 128, 256};
-    int runs = 100;
+    int runs = 2;
 
-    ofstream("./log/latency_doubling.log", ios::trunc).close();
+    ofstream("./log/latency_doubling.log", ios::trunc).close(); 
 
     ofstream log_file("./log/latency_doubling.log");
 
@@ -82,11 +82,10 @@ int main() {
     for (int str_len : str_length) {
         for (int alph : alphabet_length) {
 
-            // generate alphabet once (good)
-            vector<int> alph_vec = generate_1_to_n(alph);
-
             for (int i = 0; i < runs; ++i) {
-
+                // generate alphabet once (good)
+                vector<int> alph_vec = generate_1_to_n(alph);
+                
                 // generate text OUTSIDE timing of SA
                 vector<int> text = generate_random_string(alph_vec, str_len);
 

@@ -11,12 +11,6 @@ std::vector<int> build_suffix_array_naive(const std::vector<int> &s) {
         sa[i] = i;
     }
 
-    for (int i = 0; i < n; i++) {
-        for (int j = 0; j < n; j++) {
-            continue;
-        }
-    }
-
     // Sort suffix indices
     std::sort(sa.begin(), sa.end(), [&](int a, int b) {
         int n = s.size();
@@ -59,7 +53,8 @@ int main() {
     
     vector<int> str_length = {1000, 10000, 100000};
     vector<int> alphabet_length = {4, 8, 16, 32, 64, 128, 256};
-    int runs = 2;
+    vector<int> text = generate_random_string({1,2,3,4}, 10000);
+    int runs = 100;
 
     ofstream("./log/latency_naive.log", ios::trunc).close();
 
@@ -70,13 +65,13 @@ int main() {
     for (int str_len : str_length) {
         for (int alph : alphabet_length) {
 
-            
+            // generate alphabet once (good)
+            vector<int> alph_vec = generate_1_to_n(alph);
+
             for (int i = 0; i < runs; ++i) {
-                // generate alphabet once (good)
-                vector<int> alph_vec = generate_1_to_n(alph);
 
                 // generate text OUTSIDE timing of SA
-                vector<int> text = generate_random_string(alph_vec, str_len);
+                
 
                 auto start = chrono::high_resolution_clock::now();
 
